@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Routine & Protein Tracker</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+  h1 { color: #333; text-align: center; }
+  .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 8px; }
+  .day { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+  .day:last-child { border-bottom: none; }
+  .day h2 { color: #007BFF; }
+  ul { list-style: none; padding-left: 0; }
+  li { margin: 8px 0; }
+  label { cursor: pointer; user-select: none; }
+  input[type=checkbox] { margin-right: 10px; width: 20px; height: 20px; cursor: pointer; }
+  .protein-section { background: #e7f3ff; padding: 15px; border-radius: 5px; margin-top: 20px; }
+  .protein-section h3 { color: #007BFF; }
+  button { background-color: #007BFF; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px;}
+  button:hover { background-color: #0056b3; }
+  .footer { text-align: center; margin-top: 20px; font-size: 14px; color: #666; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Personalized Daily Routine & Protein Tracker</h1>
+
+  <div id="routineContainer">
+  </div>
+
+  <div class="protein-section">
+    <h3>MB Way Protein Intake</h3>
+    <p>Track your daily protein scoops (Goal: 2 scoops/day)</p>
+    <label><input type="checkbox" id="scoop1"> Scoop 1</label><br>
+    <label><input type="checkbox" id="scoop2"> Scoop 2</label><br>
+  </div>
+
+  <button onclick="saveProgress()">Save Progress</button>
+  <p id="saveStatus" style="color:green;"></p>
+
+</div>
+
+<script>
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const routines = {
+  "Monday": [
+    "Cardio warm-up",
+    "Full Body Weights",
+    "Walk + TV show",
+    "New music playlist"
+  ],
+  "Tuesday": [
+    "Stretch/Yoga",
+    "HIIT/Cardio",
+    "Board/card game night",
+    "Comedy podcast"
+  ],
+  "Wednesday": [
+    "Quick walk",
+    "Upper Body Weights",
+    "Family call/video chat",
+    "Short movie"
+  ],
+  "Thursday": [
+    "Bike/Active game",
+    "Cardio Intervals",
+    "Cooking new recipe",
+    "Fantasy sport picks"
+  ],
+  "Friday": [
+    "Stretch/Walk",
+    "Lower Body Weights",
+    "Art/craft hobby",
+    "Movie night with friend"
+  ],
+  "Saturday": [
+    "Yoga/Game",
+    "Fun sport (badminton, cycling, football)",
+    "Nature walk",
+    "Attend local event"
+  ],
+  "Sunday": [
+    "Rest/Leisure walk",
+    "Group activity",
+    "Early bedtime",
+    "Casual gaming"
+  ]
+};
+
+function createRoutine() {
+  const container = document.getElementById('routineContainer');
+  container.innerHTML = '';
+  days.forEach(day => {
+    let dayDiv = document.createElement('div');
+    dayDiv.className = 'day';
+
+    let dayTitle = document.createElement('h2');
+    dayTitle.textContent = day;
+    dayDiv.appendChild(dayTitle);
+
+    let ul = document.createElement('ul');
+
+    routines[day].forEach((activity, index) => {
+      let li = document.createElement('li');
+      let label = document.createElement('label');
+      let checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `${day}-task-${index}`;
+      label.htmlFor = checkbox.id;
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(activity));
+      li.appendChild(label);
+      ul.appendChild(li);
+    });
+
+    dayDiv.appendChild(ul);
+    container.appendChild(dayDiv);
+  });
+}
+
+// Save and Load Progress using localStorage
+function saveProgress() {
+  let progress = {};
+  days.forEach(day => {
+    progress[day] = [];
+    routines[day].forEach((_, index) => {
+      let box = document.getElementById(`${day}-task-${index}`);
+      progress[day].push(box.checked);
+    });
+  });
+  // Protein scoops
+  progress['protein'] = [document.getElementById('scoop1').checked, document.getElementById('scoop2').checked];
+
+  localStorage.setItem('dailyRoutineProgress', JSON.stringify(progress));
+
+  let status = document.getElementById('saveStatus');
+  status.textContent = 'Progress saved locally!';
+  setTimeout(() => { status.textContent = ''; }, 3000);
+}
+
+function loadProgress() {
+  let progress = JSON.parse(localStorage.getItem('dailyRoutineProgress'));
+  if(progress) {
+    days.forEach(day => {
+      if(progress[day]) {
+        progress[day].forEach((checked, index) => {
+          let box = document.getElementById(`${day}-task-${index}`);
+          if(box) box.checked = checked;
+        });
+      }
+    });
+    if(progress['protein']) {
+      document.getElementById('scoop1').checked = progress['protein'][0] || false;
+      document.getElementById('scoop2').checked = progress['protein'][1] || false;
+    }
+  }
+}
+
+// Initialize
+createRoutine();
+loadProgress();
+</script>
+
+</body>
+</html>
